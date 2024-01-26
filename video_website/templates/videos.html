@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>LukeBot Videos</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+
+    <body>
+        <div class="container">
+            <h1 style="color: black; text-align: center; margin: 10px">All Saved Videos</h1>
+            <form class="searchform" action="search" method="POST">
+                <label for="searchbar">Search discord ID or video name:</label>
+                <input type="text" name="searchbar" style="background-color: darkgray">
+                <input type="submit" style="background-color: darkgray">
+                <b></b><b></b>
+            </form>
+            {% if all_video_data|length > 0 %}
+                <div class="row">
+                    {% for videodata in all_video_data %}
+                    <div class="col-lg-3 col-md-6">
+                        <div id="{{ videodata[0] }}" class="infobox">
+                            <h4>{{ videodata[3] }}</h4>
+                            <div class="vid_wrapper">
+                                <video width=100% controls preload="metadata">
+                                    <source src="{{ url_for('static', filename='videos/' + videodata[0]|string + '.mp4') }}" type="video/mp4" style="object-fit:cover;">
+                                </video>
+                            </div>
+                            <!-- SUBMISSION BY DISCORD IDS? -->
+                            <p>Number of clips: {{ videodata[2] }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <h2 style="color: black; text-align: center; margin: 10px">No videos found.</h2>
+            {% endif %}
+        </div>
+    </body>
+    </html>
