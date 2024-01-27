@@ -1,0 +1,13 @@
+# vscode
+.vs/
+*.sln
+
+# ngrok
+ngrok*
+
+# python
+__pycache__/
+*.pyproj
+
+# videos
+videos/
