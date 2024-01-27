@@ -10,15 +10,19 @@
     <body>
         <div class="container">
             <h1 style="color: black; text-align: center; margin: 10px">All Saved Videos</h1>
+            
+            <img src="{{ current_user.avatar_url }}" alt="your avatar" style="position: absolute; top: 0; left: 0; margin: 10px;"/>
+            <a href="/logout" class="btn" style="position: absolute; top: 0; right: 0; color: black; background-color: #606060; margin: 10px;">Logout</a>
+            
             <form class="searchform" action="search" method="POST">
                 <label for="searchbar">Search discord ID or video name:</label>
                 <input type="text" name="searchbar" style="background-color: darkgray">
                 <input type="submit" style="background-color: darkgray">
                 <b></b><b></b>
             </form>
-            {% if all_video_data|length > 0 %}
+            {% if video_data|length > 0 %}
                 <div class="row">
-                    {% for videodata in all_video_data %}
+                    {% for videodata in video_data %}
                     <div class="col-lg-3 col-md-6">
                         <div id="{{ videodata[0] }}" class="infobox">
                             <h4>{{ videodata[3] }}</h4>
@@ -38,4 +42,4 @@
             {% endif %}
         </div>
     </body>
-    </html>
+</html>

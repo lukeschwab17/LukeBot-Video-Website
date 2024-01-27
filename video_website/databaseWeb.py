@@ -7,7 +7,7 @@ class Database:
         # open encrypted database
         self.db_file_location = r"C:\Users\schwa\Desktop\discord_project\LukeBot\LukeBot\databases\database.db"
         
-        with open(r"C:\Users\schwa\Desktop\API_KEYS\filekey.key", "rb") as key_file:
+        with open(r"C:\Users\schwa\Desktop\discord_project\LukeBot\LukeBot\keys\filekey.key", "rb") as key_file:
             self.key = Fernet(key_file.read())
         
         with open(self.db_file_location, "rb") as db_file:
@@ -64,19 +64,24 @@ class Database:
             return video_data
     
     @classmethod
-    def get_all_videos(cls, username: str):
+    def get_all_videos(cls, id: str):
         with cls() as db:
-            visible_videos = []
+            visible_videos = set()
+            
             db.curs.execute(f"SELECT rowid, * FROM recording_session_compilations")
             all_videodata = db.curs.fetchall()
-            db.curs.execute(f"SELECT guilds FROM user_accounts WHERE username = ?", (username,))
-            user_data = db.curs.fetchone()
+            
+            db.curs.execute(f"SELECT server_id FROM server_users WHERE member_id = ?", (id,))
+            user_data_tuples = db.curs.fetchall()
+            
+            user_data = set()
+            for guild_tuple in user_data_tuples:
+                user_data.add(guild_tuple[0])
+                
             for video in all_videodata:
-                print(video)
-                print(video[4])
-                print(user_data)
-                if video[4] in user_data[0]:
-                    visible_videos.append(video)
+                if video[4] in user_data:
+                    visible_videos.add(video)
+                    
             return visible_videos
 
     @classmethod
