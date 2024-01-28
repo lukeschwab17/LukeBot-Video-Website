@@ -1,13 +1,35 @@
 ﻿body {
     background-color: #404040;
     display: flex;
+    width: 100%;
 }
 
+.top-row {
+    min-height: 10vh;
+    padding: 0px;
+}
+.user-options {
+    color: black;
+    padding: 1px; 
+    border-radius: 10px;
+    width: fit-content;
+    margin-left: auto; 
+    margin-right: 0;
+}
+
+.user-options > * {
+    font-size: 3vh;
+    margin-left: auto;
+    margin-right: 0;
+}
 .row {
     display: flex;
     flex-wrap: wrap;
-    height: 10px;
+    height: 50%;
+}
 
+.row > * {
+    max-height: 100%;
 }
 
 .infobox, .searchform {
@@ -17,17 +39,34 @@
     padding: 10px;
     text-align: center;
     border-radius: 10px;
+    height: 90%;
+}
+
+.searchform {
+    height: auto;
+    max-height: 100%;
+}
+
+.infobox > h4 {
+    height: 20%;
+    font-size: 1rem;
 }
 
 .infobox > p {
+    height: 20%;
+    font-size: 1rem;
     margin: 0px;
-    font-size: 12px;
+    font-size: 1rem;
 }
 
-/*.vid_wrapper {
-    border-radius: 10px;
-    overflow: hidden;
-} */
+.video-wrapper {
+    height: 100px;
+
+}
+video {
+    max-width: 100%;
+    max-height: 100%;
+}
 
 .login-container {
     height: 100%;

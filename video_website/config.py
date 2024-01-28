@@ -6,8 +6,8 @@ with open("LukeBot/LukeBot/keys/bot_token.txt", "r") as token:
 with open(
     "LukeBot/LukeBot/keys/client_secret.txt",
     "r",
-) as client_secret:
-    CLIENT_SECRET = client_secret.read().rstrip()
+) as c_secret:
+    CLIENT_SECRET = c_secret.read().rstrip()
 
 with open("LukeBot/LukeBot/keys/secret_key.txt", "r") as secret_key:
     SECRET_KEY = secret_key.read().rstrip()

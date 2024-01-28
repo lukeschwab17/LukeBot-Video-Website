@@ -1,6 +1,7 @@
 # vscode
 .vs/
 *.sln
+.vscode/
 
 # ngrok
 ngrok*
