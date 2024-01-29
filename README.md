@@ -1,4 +1,4 @@
-<h1>Video website for https://github.com/lukeschwab17/LukeBot</h1>
+<h1>Video website for <a href="https://github.com/lukeschwab17/LukeBot">LukeBot</a></h1>
 Website hosts video compilations created via LukeBot discord bot
 <br></br>
 <h2>Notes:</h2>
