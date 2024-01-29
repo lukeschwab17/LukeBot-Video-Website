@@ -13,16 +13,16 @@
             <div class="top-row">
                 <div class="user-options">
                     <img src="{{ current_user.avatar_url }}" alt="your avatar" style="width: 20%; border-radius: 10px;"/>
-                    <a href="/logout" class="btn" style="background-color: #606060; color: black; width: fit-content;">Logout</a>
+                    <a href="/logout" class="btn" style="background-color: #787878; color: black; width: fit-content;">Logout</a>
                 </div>
             </div>
 
-            <h1 style="text-align: center; color: black;">All Saved Videos</h1>
+            <h1 style="text-align: center; color: #787878; margin-bottom: 1vh;">All Saved Videos</h1>
 
             <form class="searchform" action="search" method="POST">
                 <label for="searchbar">Search discord ID or video name:</label>
-                <input type="text" name="searchbar" style="background-color: darkgray">
-                <input type="submit" style="background-color: darkgray">
+                <input type="text" id="searchbar" style="background-color: darkgray" alt="search bar">
+                <input type="submit" title="Submit" style="background-color: darkgray" alt="submit button">
                 <b></b><b></b>
             </form>
             {% if video_data|length > 0 %}
