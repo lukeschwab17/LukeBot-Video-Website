@@ -1,49 +1,84 @@
 ﻿body {
-    background-color: #404040;
+    background-color: #212121;
     display: flex;
+    width: 100%;
 }
 
+.top-row {
+    min-height: 6vh;
+    padding: 0px;
+}
+.user-options {
+    color: black;
+    padding: 1px; 
+    border-radius: 10px;
+    width: fit-content;
+    margin-left: auto; 
+    margin-right: 0;
+}
+
+.user-options > * {
+    font-size: 3vh;
+    margin-left: auto;
+    margin-right: 0;
+}
 .row {
     display: flex;
     flex-wrap: wrap;
-    height: 10px;
+    height: 50%;
+}
 
+.row > * {
+    max-height: 100%;
 }
 
 .infobox, .searchform {
-    background-color: #606060;
+    background-color: #787878;
     color: black;
     margin: 10px;
     padding: 10px;
     text-align: center;
     border-radius: 10px;
+    height: 90%;
+}
+
+.searchform {
+    height: auto;
+    max-height: 100%;
+}
+
+.infobox > h4 {
+    height: 20%;
+    font-size: 1rem;
 }
 
 .infobox > p {
+    height: 20%;
+    font-size: 1rem;
     margin: 0px;
-    font-size: 12px;
+    font-size: 1rem;
 }
 
-/*.vid_wrapper {
-    border-radius: 10px;
-    overflow: hidden;
-} */
+.video-wrapper {
+    height: 100px;
 
-.login-body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    margin: 0;
+}
+video {
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .login-container {
-    background-color: #606060;
-    height: 100px;
-    margin: auto;
-    width: 80%;
-    padding: 10px;
-    border-radius: 15px;
-    text-align: center;
+    height: 100%;
+    width: 100%;
+    position: absolute;
 }
 
+.login-center {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}

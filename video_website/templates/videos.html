@@ -9,25 +9,33 @@
 
     <body>
         <div class="container">
-            <h1 style="color: black; text-align: center; margin: 10px">All Saved Videos</h1>
+
+            <div class="top-row">
+                <div class="user-options">
+                    <img src="{{ current_user.avatar_url }}" alt="your avatar" style="width: 20%; border-radius: 10px;"/>
+                    <a href="/logout" class="btn" style="background-color: #787878; color: black; width: fit-content;">Logout</a>
+                </div>
+            </div>
+
+            <h1 style="text-align: center; color: #787878; margin-bottom: 1vh;">All Saved Videos</h1>
+
             <form class="searchform" action="search" method="POST">
                 <label for="searchbar">Search discord ID or video name:</label>
-                <input type="text" name="searchbar" style="background-color: darkgray">
-                <input type="submit" style="background-color: darkgray">
+                <input type="text" name="searchbar" id="searchbar" style="background-color: darkgray" alt="search bar">
+                <input type="submit" title="Submit" style="background-color: darkgray" alt="submit button">
                 <b></b><b></b>
             </form>
-            {% if all_video_data|length > 0 %}
+            {% if video_data|length > 0 %}
                 <div class="row">
-                    {% for videodata in all_video_data %}
+                    {% for videodata in video_data %}
                     <div class="col-lg-3 col-md-6">
                         <div id="{{ videodata[0] }}" class="infobox">
                             <h4>{{ videodata[3] }}</h4>
-                            <div class="vid_wrapper">
-                                <video width=100% controls preload="metadata">
-                                    <source src="{{ url_for('static', filename='videos/' + videodata[0]|string + '.mp4') }}" type="video/mp4" style="object-fit:cover;">
+                            <div class="video-wrapper">
+                                <video controls preload="metadata">
+                                    <source src="{{ url_for('static', filename='videos/' + videodata[0]|string + '.mp4') }}" type="video/mp4">
                                 </video>
                             </div>
-                            <!-- SUBMISSION BY DISCORD IDS? -->
                             <p>Number of clips: {{ videodata[2] }}</p>
                         </div>
                     </div>
@@ -38,4 +46,4 @@
             {% endif %}
         </div>
     </body>
-    </html>
+</html>
