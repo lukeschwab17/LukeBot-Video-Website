@@ -1,7 +1,7 @@
 import sqlite3
 from sqlite3 import dbapi2
 from cryptography.fernet import Fernet
-
+import os
 
 class Database:
     def __init__(self):
@@ -109,3 +109,75 @@ class Database:
             ):  # check if search is in video name
                 filtered_videos.append(video_data)
         return filtered_videos
+
+    @classmethod
+    def vote_update(cls, vote: str, video_id: int, discord_id: str):
+        """Updates video votes as well as user's votes"""
+        with cls() as db:
+            db.curs.execute("""CREATE TABLE IF NOT EXISTS video_votes (
+                                video_id int,
+                                votes integer,
+                                PRIMARY KEY (video_id)
+                            )""")
+            
+            db.curs.execute("""CREATE TABLE IF NOT EXISTS user_votes (
+                                discord_id text,
+                                videos_ids text,
+                                PRIMARY KEY (discord_id)
+                            )""")
+            
+            db.curs.execute("SELECT * FROM video_votes WHERE video_id = ?", (video_id,))
+            video_row = db.curs.fetchone()
+            db.curs.execute("SELECT * FROM user_votes WHERE discord_id = ?", (discord_id,))
+            user_row = db.curs.fetchone()
+            
+            # if rows don't exist for video voted on or user that voted, create them
+            if not video_row:
+                db.curs.execute("INSERT INTO video_votes (video_id, votes) VALUES (?, ?)", (video_id, 0))
+                video_row = (video_id, 0)
+            if not user_row:
+                db.curs.execute("INSERT INTO user_votes (discord_id, videos_ids) VALUES (?, ?)", (discord_id, ""))
+                user_row = (discord_id, "")
+
+            # add or remove votes
+            if vote == "add":
+                new_votes = video_row[1] + 1 
+                db.curs.execute("UPDATE video_votes SET votes = ? WHERE video_id = ?", (new_votes, video_id))
+                video_row = (video_id, new_votes)
+            elif vote == "remove":
+                new_votes = max(0, video_row[1] - 1)
+                db.curs.execute("UPDATE video_votes SET votes = ? WHERE video_id = ?", (new_votes, video_id))
+                video_row = (video_id, new_votes)
+
+            if cls.check_votes(video_id, new_votes):
+                print("Video deleted.")
+
+    @classmethod
+    def check_votes(cls, video_id: int, votes: int) -> bool:
+        """Carries out video deletion if necessary
+        
+        returns boolean value depending on video deleted or not
+        """
+        with cls() as db:
+            db.curs.execute("SELECT guild_id, user_ids FROM recording_session_compilations WHERE rowid = ?", (video_id,))
+            video_data = db.curs.fetchone()
+
+            video_guild = video_data[0]
+            guild_size = len(str(video_data[1]).split()) # video_data[1] is string of user id's in guild seperated by spaces
+
+            if votes >= (guild_size / 2):
+                cls.delete_video(video_id)
+                return True
+            
+            return False
+                
+    @classmethod
+    def delete_video(cls, video_int: int):
+        """Deletes video file and database row"""
+        with cls() as db:
+            db.curs.execute("DELETE FROM recording_session_compilations WHERE rowid = ?", (video_int,))
+            try:
+                os.remove(f'static/videos/{video_int}.mp4') # make sure this is right filepath before running
+                print("Video Deletion Success")
+            except OSError:
+                print("Video deletion failed, specified file not found")
