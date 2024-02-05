@@ -1,9 +1,19 @@
-from flask import Flask, flash, redirect, render_template, request, session, abort
+from flask import (
+    Flask,
+    flash,
+    redirect,
+    render_template,
+    request,
+    session,
+    abort,
+    jsonify,
+)
 from zenora import APIClient
 from werkzeug.exceptions import BadRequest
 import os
 from databaseWeb import Database
 from config import *
+import random
 
 # zenora library and usage:
 # https://github.com/ahnaf-zamil/zenora
@@ -62,6 +72,45 @@ def callback():
 def logout():
     session.clear()
     return redirect("/")
+
+
+@app.route("/toggle_button", methods=["POST"])
+def toggle_button():
+    bearer_client = APIClient(session.get("token"), bearer=True)
+    current_user = bearer_client.users.get_current_user()
+    discord_id = str(current_user.id)
+
+    # Example: Check if the button is already pressed for the given video ID
+    video_id = str(request.json.get("videoId"))
+
+    # Perform database check here to determine button state
+    # For demonstration, let's assume the state is toggled in memory
+    button_state = toggle_button_state(discord_id, video_id)
+
+    # Return JSON response indicating button state
+    return jsonify({"exists": button_state})
+
+
+def toggle_button_state(discord_id, video_id):
+    # Toggle the button state in the database or in memory
+    if not is_button_pressed(discord_id, video_id):
+        Database.vote_update("add", video_id, discord_id)
+        print("add")
+    else:
+        Database.vote_update("remove", video_id, discord_id)
+        print("remove")
+    # Here, we just simulate the toggling behavior
+    return is_button_pressed(discord_id, video_id)
+
+
+def is_button_pressed(discord_id, video_id):
+    # Check if the button is pressed in the database or in memory
+    # Here, we just simulate the state being randomly true or false
+    return Database.did_user_vote(discord_id, video_id)
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
 
 if __name__ == "__main__":

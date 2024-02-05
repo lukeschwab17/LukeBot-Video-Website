@@ -4,6 +4,7 @@
         <title>LukeBot Videos</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <script src="{{ url_for('static', filename='scripts.js') }}"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
 
@@ -37,6 +38,10 @@
                                 </video>
                             </div>
                             <p>Number of clips: {{ videodata[2] }}</p>
+                            <button id="toggle-remove-button" onclick="toggleButton('{{ videodata[0] }}')">
+                                <img id="buttonImage-{{ videodata[0] }}" src="{% if button_state %}{{ url_for('static', filename='images/remove_selected.png') }}{% else %}{{ url_for('static', filename='images/remove_unselected.png') }}{% endif %}" alt="Button Image">
+                            </button>
+                            
                         </div>
                     </div>
                     {% endfor %}
