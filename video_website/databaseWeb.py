@@ -109,21 +109,6 @@ class Database:
                 filtered_videos.append(video_data)
         return filtered_videos
 
-    def check_votes(cls, video_id: int, votes: int) -> bool:
-        """Carries out video deletion if necessary"""
-        with cls() as db:
-
-            db.curs.execute(
-                "SELECT guild_id, user_ids FROM recording_session_compilations WHERE rowid = ?",
-                (video_id,),
-            )
-            video_data = db.curs.fetchone()
-
-            video_guild = video_data[0]
-            guild_size = len(
-                str(video_data[1]).split()
-            )  # video_data[1] is string of user id's in guild seperated by spaces
-
     @classmethod
     def vote_update(cls, vote: str, video_id: str, discord_id: str):
         """Updates video votes as well as user's votes"""
@@ -190,73 +175,59 @@ class Database:
                     (user_row[1].replace(f"{video_id} ", ""), user_row[0]),
                 )
 
-            #### check_votes method ####
-            db.curs.execute(
-                "SELECT guild_id FROM recording_session_compilations WHERE rowid = ?",
-                (video_id,),
-            )
-            video_data = db.curs.fetchone()
-            video_guild = video_data[0]
+            cls.check_votes(db, video_id, new_votes)
 
-            db.curs.execute(
-                "SELECT server_id FROM server_users where server_id = ?", (video_guild,)
-            )
-            guild_size = len(db.curs.fetchall())
+    def check_votes(db, video_id: int, votes: int) -> bool:
+        """Carries out video deletion if necessary"""
+        db.curs.execute(
+            "SELECT guild_id, user_ids FROM recording_session_compilations WHERE rowid = ?",
+            (video_id,),
+        )
+        video_data = db.curs.fetchone()
 
-            print(video_guild)
-            print(guild_size)
+        video_guild = video_data[0]
+        contributer_size = len(
+            str(video_data[1]).split()
+        )  # video_data[1] is string of user id's in the video contributors seperated by spaces
 
-            # if half server (minus bot) votes to delete, delete video
-            if new_votes >= ((guild_size - 1) // 2):
-                #### delete_votes method ####
-                db.curs.execute(
-                    "SELECT file_path FROM recording_session_compilations WHERE rowid = ?",
-                    (video_id,),
-                )
-                video_to_delete = db.curs.fetchone()
-                video_to_delete = rf"{video_to_delete[0]}"  # absolute filepath
+        if votes >= (contributer_size // 2):
+            db.delete_video(video_id)
 
-                # delete videos
-                try:
-                    os.remove(video_to_delete)
-                    print("Video Deletion Success")
-                except OSError:
-                    print("Video deletion failed, specified file not found")
-                    return
-
-                db.curs.execute(
-                    "DELETE FROM recording_session_compilations WHERE rowid = ?",
-                    (video_id,),
-                )
-
-                db.curs.execute(
-                    "DELETE FROM video_votes WHERE video_id = ?", (video_id,)
-                )
-
-                # here, I want to remove the votes of the video from ALL user's votes that voted for that video. Not a huge deal since each video is
-                # uniquely named, but would be nice.
-
-    @classmethod
-    def delete_video(cls, video_id: int):
+    def delete_video(db, video_id: int):
         """Deletes video file and database row"""
-        with cls() as db:
-            db.curs.execute(
-                "SELECT file_path FROM recording_session_compilations WHERE rowid = ?",
-                (video_id,),
-            )
-            video_to_delete = db.fetchone()
-            video_to_delete = rf"{video_to_delete[0]}"  # absolute filepath
+        db.curs.execute(
+            "SELECT file_path FROM recording_session_compilations WHERE rowid = ?",
+            (video_id,),
+        )
+        video_to_delete = db.curs.fetchone()
+        video_to_delete = rf"{video_to_delete[0]}"  # filepath
 
-            db.curs.execute(
-                "DELETE FROM recording_session_compilations WHERE rowid = ?",
-                (video_id,),
-            )
+        # delete video and it's votes from all relevant tables
+        db.curs.execute(
+            "DELETE FROM recording_session_compilations WHERE rowid = ?",
+            (video_id,),
+        )
 
-            try:
-                os.remove(video_to_delete)
-                print("Video Deletion Success")
-            except OSError:
-                print("Video deletion failed, specified file not found")
+        db.curs.execute("DELETE FROM video_votes WHERE video_id = ?", (video_id,))
+
+        db.curs.execute("SELECT * FROM user_votes")
+        all_user_votes = db.curs.fetchall()
+
+        print(all_user_votes)
+
+        for user_row in all_user_votes:
+            if str(video_id) in user_row[1]:
+                (
+                    "UPDATE user_votes SET videos_ids = ? WHERE discord_id = ?",
+                    (user_row[1].replace(f"{video_id} ", ""), user_row[0]),
+                )
+
+        # delete video file
+        try:
+            os.remove(video_to_delete)
+            print("Video Deletion Success")
+        except OSError:
+            print("Video deletion failed, specified file not found")
 
     @classmethod
     def did_user_vote(cls, discord_id: int, video_id: str):
