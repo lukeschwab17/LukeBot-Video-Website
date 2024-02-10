@@ -37,11 +37,16 @@
                                     <source src="{{ url_for('static', filename='videos/' + videodata[0]|string + '.mp4') }}" type="video/mp4">
                                 </video>
                             </div>
-                            <p>Number of clips: {{ videodata[2] }}</p>
-                            <button id="toggle-remove-button" onclick="toggleButton('{{ videodata[0] }}')">
-                                <img id="buttonImage-{{ videodata[0] }}" src="{% if button_state %}{{ url_for('static', filename='images/remove_selected.png') }}{% else %}{{ url_for('static', filename='images/remove_unselected.png') }}{% endif %}" alt="Button Image">
-                            </button>
-                            
+                            {% if current_user.id|string in videodata[1] %}
+                                <button id="toggle-remove-button" onclick="toggleButton('{{ videodata[0] }}')">
+                                    <img id="buttonImage-{{ videodata[0] }}" src="{% if button_state %}{{ url_for('static', filename='images/remove_selected.png') }}{% else %}{{ url_for('static', filename='images/remove_unselected.png') }}{% endif %}" alt="Button Image">
+                                </button>
+                                {% for votes in all_votes %}
+                                    {% if votes[0] == videodata[0] %}
+                                        <p style="align-self: center; text-align: center;">Deletion votes: {{ votes[1]|string  }} / {{ votes[2]|string }}</p>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
                         </div>
                     </div>
                     {% endfor %}

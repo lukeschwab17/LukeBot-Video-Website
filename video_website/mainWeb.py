@@ -33,8 +33,15 @@ def home():
     current_user_id = str(current_user.id)
     video_data = Database.get_all_videos(current_user_id)
 
+    # build votes for each video
+    all_votes = []
+    for video in video_data:
+        all_votes.append(Database.get_votes(video[0]))
     return render_template(
-        "videos.html", current_user=current_user, video_data=video_data
+        "videos.html",
+        current_user=current_user,
+        video_data=video_data,
+        all_votes=all_votes,
     )
 
 

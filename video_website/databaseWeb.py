@@ -73,11 +73,11 @@ class Database:
         with cls() as db:
             visible_videos = set()
 
-            db.curs.execute(f"SELECT rowid, * FROM recording_session_compilations")
+            db.curs.execute("SELECT rowid, * FROM recording_session_compilations")
             all_videodata = db.curs.fetchall()
 
             db.curs.execute(
-                f"SELECT server_id FROM server_users WHERE member_id = ?", (id,)
+                "SELECT server_id FROM server_users WHERE member_id = ?", (id,)
             )
             user_data_tuples = db.curs.fetchall()
 
@@ -128,7 +128,20 @@ class Database:
                                 PRIMARY KEY (discord_id)
                             )"""
             )
+            # first, need to make sure user is allowed to vote on video.
+            db.curs.execute(
+                "SELECT user_ids FROM recording_session_compilations WHERE rowid = ?",
+                (video_id,),
+            )
+            user_ids = db.curs.fetchone()[0]
+            if discord_id not in user_ids:
+                print(
+                    f"User attempt to vote on non-contributed video. Discord ID: {discord_id}"
+                )
+                return
 
+            # then, continue
+            db.curs.execute("SELECT user_ids")
             db.curs.execute("SELECT * FROM video_votes WHERE video_id = ?", (video_id,))
             video_row = db.curs.fetchone()
             db.curs.execute(
@@ -256,3 +269,25 @@ class Database:
             if videos:
                 return video_id in videos[0]
             return False
+
+    @classmethod
+    def get_votes(cls, video_id: int) -> [int]:
+        """Gets current votes and required votes to delete video
+        returns [video id, current votes, votes required for deletion]"""
+        with cls() as db:
+            db.curs.execute(
+                "SELECT user_ids FROM recording_session_compilations WHERE rowid = ?",
+                (video_id,),
+            )
+            user_ids = db.curs.fetchone()
+
+            db.curs.execute(
+                "SELECT votes FROM video_votes where video_id = ?", (video_id,)
+            )
+            current_votes = db.curs.fetchone()[0]
+
+            votes_required = len(
+                str(user_ids[0]).split()
+            )  # video_data[1] is string of user id's in the video contributors seperated by spaces
+
+            return [video_id, current_votes, votes_required]
